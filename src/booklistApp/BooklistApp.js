@@ -10,8 +10,8 @@ class BooklistApp extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      search: "daniel",
-      results: {},
+      search: "",
+      results: [],
       error: "",
       filter: ""
     };
@@ -28,7 +28,6 @@ class BooklistApp extends Component {
   componentDidMount() {
     const searchTerm = this.state.search;
     const url = `https://www.googleapis.com/books/v1/volumes?q=${searchTerm}&key=AIzaSyDyeka9DmrpZqMvs-LvNjoR-ELMYeDUGvk`;
-
     fetch(url)
       .then(res => {
         if (!res.ok) {
@@ -39,7 +38,7 @@ class BooklistApp extends Component {
       .then(res => res.json())
       .then(data => {
         this.setState({
-          results: data,
+          results: data.items,
           error: null
         });
       })
@@ -58,7 +57,10 @@ class BooklistApp extends Component {
           <Header />
         </div>
         <div className="search">
-          <Search handleSearch={value => this.updateSearch(value)} />
+          <Search
+            currentSearch={this.state.search}
+            handleSearch={value => this.updateSearch(value)}
+          />
         </div>
         <div className="filter">
           <Filter handleFilter={filter => this.updateFilter(filter)} />
