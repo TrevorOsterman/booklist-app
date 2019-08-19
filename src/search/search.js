@@ -24,6 +24,7 @@ export default class Search extends React.Component {
           onClick={e => {
             e.preventDefault();
             this.props.handleSearch(this.state.term);
+            this.setState({ term: "" });
           }}
         >
           Search

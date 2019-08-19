@@ -4,18 +4,36 @@ import Search from "../search/search";
 import Filter from "../filter/filter";
 import Booklist from "../booklist/booklist";
 
-const key = "AIzaSyDyeka9DmrpZqMvs-LvNjoR-ELMYeDUGvk";
-
 class BooklistApp extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      search: "",
+      search: null,
       results: [],
       error: "",
       filter: ""
     };
   }
+
+  static defaultProps = {
+    search: null,
+    results: [
+      {
+        volumeInfo: {
+          title: "",
+          authors: [""],
+          description: ""
+        },
+        saleInfo: {
+          listPrice: {
+            amount: null
+          }
+        }
+      }
+    ],
+    error: "",
+    filter: ""
+  };
 
   updateSearch(value) {
     this.setState({ search: value });
@@ -25,29 +43,56 @@ class BooklistApp extends Component {
     this.setState({ filter: filter });
   }
 
-  componentDidMount() {
+  // componentDidMount() {
+  //   const searchTerm = this.state.search;
+  //   const url = `https://www.googleapis.com/books/v1/volumes?q=${searchTerm}&key=AIzaSyDyeka9DmrpZqMvs-LvNjoR-ELMYeDUGvk`;
+  //   fetch(url)
+  //     .then(res => {
+  //       if (!res.ok) {
+  //         throw new Error("Something went wrong, please try again later.");
+  //       }
+  //       return res;
+  //     })
+  //     .then(res => res.json())
+  //     .then(data => {
+  //       this.setState({
+  //         results: data.items,
+  //         error: null
+  //       });
+  //     })
+  //     .catch(err => {
+  //       this.setState({
+  //         error: err.message
+  //       });
+  //     });
+  //   console.log(this.state.results);
+  // }
+
+  componentDidUpdate(prevProps, prevState) {
     const searchTerm = this.state.search;
-    const url = `https://www.googleapis.com/books/v1/volumes?q=${searchTerm}&key=AIzaSyDyeka9DmrpZqMvs-LvNjoR-ELMYeDUGvk`;
-    fetch(url)
-      .then(res => {
-        if (!res.ok) {
-          throw new Error("Something went wrong, please try again later.");
-        }
-        return res;
-      })
-      .then(res => res.json())
-      .then(data => {
-        this.setState({
-          results: data.items,
-          error: null
+    const url = `https://www.googleapis.com/books/v1/volumes?q=${searchTerm}&key=AIzaSyDyeka9DmrpZqMvs-LvNjoR-ELMYeDUGvk&maxResults=5`;
+    if (searchTerm !== prevState.search) {
+      fetch(url)
+        .then(res => {
+          if (!res.ok) {
+            throw new Error("Something went wrong, please try again later.");
+          }
+          return res;
+        })
+        .then(res => res.json())
+        .then(data => {
+          this.setState({
+            results: data.items,
+            error: null
+          });
+        })
+        .catch(err => {
+          this.setState({
+            error: err.message
+          });
         });
-      })
-      .catch(err => {
-        this.setState({
-          error: err.message
-        });
-      });
-    console.log(this.state.results);
+      console.log(this.state.results);
+    }
   }
 
   render() {
@@ -66,7 +111,7 @@ class BooklistApp extends Component {
           <Filter handleFilter={filter => this.updateFilter(filter)} />
         </div>
         <div className="booklist">
-          <Booklist />
+          <Booklist results={this.state.results} filter={this.state.filter} />
         </div>
       </div>
     );
